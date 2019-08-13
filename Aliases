@@ -1,0 +1,19 @@
+alias df="df -h"
+alias du="du -hs"
+alias ll="ls -GlAh"
+alias ls="ls -G"
+alias mkdir="mkdir -vp"
+alias sshx="ssh -X"
+alias wget="wget -c"
+
+function sshr {
+    SSH=`which ssh`
+    $SSH -t $@ screen -RD ;
+    if [ `echo $?` == 127 ]
+    then
+            echo "Screen NOT INSTALLED ON $@, will use SSH without Screen instead."
+            echo "##"
+            echo "##"
+            $SSH $@
+    fi
+}

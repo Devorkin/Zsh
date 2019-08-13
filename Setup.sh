@@ -29,12 +29,17 @@ brew tap homebrew/cask-fonts
 brew cask install font-hack-nerd-font
 
 # Oh-My-Zsh installation
-bash "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+#bash "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 
 # Zsh installation
 brew install zsh
 
-# Original iTerm2 Solarized Dark colors theme - In use
+# Install Plugins
+mkdir ~/.oh-my-zsh/custom/plugins
+git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+
+# Original iTerm2 Solarized Dark colors theme - Confirmed
 if [[ ! -f ~/Solarized_Dark.itemcolors ]]; then
 cat >> ~/Solarized_Dark.itemcolors << EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -825,13 +830,20 @@ if [[ ! -d /usr/local/opt/powerlevel9k ]]; then
 	brew install powerlevel9k
 fi
 
-# Powerlevel10k Installation - Not in use ATM!
+# Zsh Aliases
+if [[ ! -f ~/.Aliases ]]; then
+	cp ./Aliases ~/.Aliases
+	#chown $USER:staff ~/.Aliases
+	chmod 0640 ~/.Aliases
 
 # .Zshrc configuration
 if [[ ! -f ~/.zshrc ]]; then
     touch ~/.zshrc
 fi
+
 cat >> ~/.zshrc << EOF
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="\$PATH:\$HOME/.rvm/bin"
 # Load Aliases, if exists
 [[ -e ~/.Aliases ]] && emulate sh -c 'source ~/.Aliases'
 
@@ -840,6 +852,10 @@ HISTFILE=~/.zsh_history
 HISTSIZE=100000
 SAVEHIST=100000
 setopt appendhistory
+
+# Additional plugins
+source ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 POWERLEVEL9K_MODE='nerdfont-complete'
 source /usr/local/opt/powerlevel9k/powerlevel9k.zsh-theme
