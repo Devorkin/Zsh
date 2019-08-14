@@ -11,6 +11,8 @@
 # [Source]: https://medium.com/@rafavinnce/iterm2-zsh-oh-my-zsh-material-design-the-most-power-full-terminal-on-macos-332b1ee364a5
 ###
 
+# Script variables
+iTermTheme='Solarized_Dark'
 # Brew installation
 if [[ ! `which brew` ]]; then
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -31,6 +33,8 @@ brew install neofetch
 # Nerd fonts installation
 brew tap homebrew/cask-fonts
 brew cask install font-hack-nerd-font
+sudo chown -R $(whoami) /usr/local/lib/pkgconfig
+chmod u+w /usr/local/lib/pkgconfig
 
 # Oh-My-Zsh installation
 #bash "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
@@ -45,6 +49,7 @@ if [[ ! -d /Users/$USER/.oh-my-zsh/custom/plugins/zsh-autosuggestions ]]; then g
 if [[ ! -d /Users/$USER/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]]; then git clone https://github.com/zsh-users/zsh-syntax-highlighting.git /Users/$USER/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting; fi
 
 # Original iTerm2 Solarized Dark colors theme - Confirmed
+if [[ ${iTermTheme} == 'Solarized_Dark' ]]; then
 if [[ ! -f /Users/$USER/Solarized_Dark.itemcolors ]]; then
 cat >> /Users/$USER/Solarized_Dark.itemcolors << EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -261,11 +266,11 @@ cat >> /Users/$USER/Solarized_Dark.itemcolors << EOF
 </dict>
 </plist>
 EOF
-fi
 
+elif [[ ${iTermTheme} == 'Solarized_Dark_patched' ]]; then
 # Patched iTerm2 Solarized Dark colors theme - Not in use
 #cat >> ~/Solarized_Dark.itemcolors << EOF
-cat >> /dev/null << EOF
+cat >> /Users/$USER/Solarized_Dark_patched.itemcolors << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -481,8 +486,9 @@ cat >> /dev/null << EOF
 </plist>
 EOF
 
+elif [[ ${iTermTheme} == 'Material_Design' ]]; then
 # Material Design Colors iTerm colors - Not in use
-cat >> /dev/null << EOF
+cat >> /Users/$USER/Material_design.itemcolors << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -828,6 +834,7 @@ cat >> /dev/null << EOF
 </dict>
 </plist>
 EOF
+fi
 
 # Powerlevel9k Installation - In use
 if [[ ! -d /usr/local/opt/powerlevel9k ]]; then
