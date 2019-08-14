@@ -14,11 +14,15 @@
 # Brew installation
 if [[ ! `which brew` ]]; then
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+else
+	echo "Brew is already installed."
 fi
 
 # iTerm2 installation
 if [[ ! -d "/Applications/iTerm.app" ]]; then
     brew cask install iterm2
+else
+	echo "iTerm2 is already installed."
 fi
 
 # Neofetch installation
@@ -35,13 +39,14 @@ brew cask install font-hack-nerd-font
 brew install zsh
 
 # Install Plugins
-mkdir ~/.oh-my-zsh/custom/plugins
-git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+if [[ ! -d /Users/$USER/.oh-my-zsh/custom/plugins ]]; then mkdir /Users/$USER/.oh-my-zsh/custom/plugins; fi
+
+if [[ ! -d /Users/$USER/.oh-my-zsh/custom/plugins/zsh-autosuggestions ]]; then git clone https://github.com/zsh-users/zsh-autosuggestions /Users/$USER/.oh-my-zsh/custom/plugins/zsh-autosuggestions; fi
+if [[ ! -d /Users/$USER/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]]; then git clone https://github.com/zsh-users/zsh-syntax-highlighting.git /Users/$USER/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting; fi
 
 # Original iTerm2 Solarized Dark colors theme - Confirmed
-if [[ ! -f ~/Solarized_Dark.itemcolors ]]; then
-cat >> ~/Solarized_Dark.itemcolors << EOF
+if [[ ! -f /Users/$USER/Solarized_Dark.itemcolors ]]; then
+cat >> /Users/$USER/Solarized_Dark.itemcolors << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -831,17 +836,17 @@ if [[ ! -d /usr/local/opt/powerlevel9k ]]; then
 fi
 
 # Zsh Aliases
-if [[ ! -f ~/.Aliases ]]; then
-	cp ./Aliases ~/.Aliases
+if [[ ! -f /Users/$USER/.Aliases ]]; then
+	cp ./Aliases /Users/$USER/.Aliases
 	#chown $USER:staff ~/.Aliases
 	chmod 0640 ~/.Aliases
 
 # .Zshrc configuration
-if [[ ! -f ~/.zshrc ]]; then
-    touch ~/.zshrc
+if [[ ! -f /Users/$USER/.zshrc ]]; then
+    touch /Users/$USER/.zshrc
 fi
 
-cat >> ~/.zshrc << EOF
+cat >> /Users/$USER/.zshrc << EOF
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export PATH="\$PATH:\$HOME/.rvm/bin"
 # Load Aliases, if exists
