@@ -848,6 +848,7 @@ if [[ ! -f /Users/$USER/.Aliases ]]; then
 	cp ./Aliases /Users/$USER/.Aliases
 	#chown $USER:staff ~/.Aliases
 	chmod 0640 ~/.Aliases
+fi
 
 # .Zshrc configuration
 if [[ ! -f /Users/$USER/.zshrc ]]; then
