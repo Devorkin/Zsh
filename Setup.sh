@@ -50,7 +50,7 @@ if [[ ! -d /Users/$USER/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]]; th
 
 # Original iTerm2 Solarized Dark colors theme - Confirmed
 if [[ ${iTermTheme} == 'Solarized_Dark' ]]; then
-if [[ ! -f /Users/$USER/Solarized_Dark.itemcolors ]]; then
+	if [[ ! -f /Users/$USER/Solarized_Dark.itemcolors ]]; then
 cat >> /Users/$USER/Solarized_Dark.itemcolors << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -266,6 +266,7 @@ cat >> /Users/$USER/Solarized_Dark.itemcolors << EOF
 </dict>
 </plist>
 EOF
+	fi
 
 elif [[ ${iTermTheme} == 'Solarized_Dark_patched' ]]; then
 # Patched iTerm2 Solarized Dark colors theme - Not in use
