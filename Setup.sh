@@ -12,19 +12,182 @@
 ###
 
 # Script variables
-iTermTheme='Solarized_Dark'
+set -o nounset
+echo $(tput sgr0)
+Args=("$@")
+OSname=''
+OStype=''
+OSversion=''
+
+# Output templates:
+description_msg() {
+	echo -e "$(tput setaf 10)--> $*$(tput sgr0)"
+}
+error_msg() {
+	echo -e "$(tput setaf 1)(X) --> $*$(tput sgr0)"
+}
+notification_msg() {
+	echo -e "$(tput setaf 3)##\n## $*\n##\n$(tput sgr0)"
+}
+output_msg() {
+	echo -e "$(tput setaf 2)--> $*$(tput sgr0)"
+}
+query_msg() {
+	echo -e "$(tput setaf 9)--> $*$(tput sgr0)"
+}
+warning_msg() {
+	echo -e "$(tput setaf 3)(!) --> $*$(tput sgr0)"
+}
+function echodo {
+	output_msg "$@"
+	"$@"
+}
+
+function OS_type {
+	# Recognize OS type:
+	if [[ -f /etc/redhat-release ]]; then
+        OStype="CentOS"
+	elif [[ -f /usr/bin/lsb_release ]]; then
+        OStype="Ubuntu"
+	elif [[ -f /usr/bin/sw_vers ]]; then
+		OStype="OSX"
+	else
+		error_msg "This script supports CentOS \ RHEL, OSX or Ubuntu OS ditributions!"
+		exit 102
+	fi
+}
+
+function OS_version {
+    if [[ ${OStype} == "CentOS" ]]; then
+        if [[ `cat /etc/redhat-release` == "CentOS Linux release 7."* ]]; then
+			OSversion=7
+		elif [[ `cat /etc/redhat-release` == "CentOS release 6."* ]]; then
+			OSversion=6
+        else
+            error_msg "Your CentOS version is not supported yet!"
+            exit 103
+		fi
+    elif [[ ${OStype} == "Ubuntu" ]]; then
+        OSval=`/usr/bin/lsb_release -rs`
+        case ${OSval} in
+        14.04)
+            OSname='Trusty Tahr'
+            OSversion="14.04"
+            ;;
+        14.10)
+            OSname='Utopic Unicorn'
+            OSversion="14.10"
+            ;;
+        15.04)
+            OSname='Vivid Vervet'
+            OSversion="15.04"
+            ;;
+        15.10)
+            OSname='Wily Werewolf'
+            OSversion="15.10"
+            ;;
+        16.04)
+            OSname='Xenial Xerus'
+            OSversion="16.04"
+            ;;
+        16.10)
+            OSname='Yakkety Yak'
+            OSversion="16.10"
+            ;;
+        17.04)
+            OSname='Zesty Zapus'
+            OSversion="17.04"
+            ;;
+        17.10)
+            OSname='Artful Aardvark'
+            OSversion="17.10"
+            ;;
+        18.04)
+            OSname='Bionic Beaver'
+            OSversion="18.04"
+            ;;
+        18.10)
+            OSname='Cosmic Cuttlefish'
+            OSversion="18.10"
+            ;;
+        19.04)
+            OSname='Disco Dingo'
+            OSversion="19.04"
+            ;;
+        *)
+            error_msg "Your Ubuntu version is not supported yet!"
+            exit 104
+            ;;
+       esac
+    elif [[ ${OStype} == "OSX" ]]; then
+		OSval=`sw_vers -productVersion`
+		case ${OSval} in
+            10.6.*)
+                OSname='Snow Leopard'
+                OSversion="10.6"
+                ;;
+            10.7.*)
+                OSname='Lion'
+                OSversion="10.7"
+                ;;
+            10.8.*)
+                OSname='Mountain Lion'
+                OSversion="10.8"
+                ;;
+            10.9.*)
+                OSname='Mavericks'
+                OSversion="10.9"
+                ;;
+            10.10.*)
+                OSname='Yosemite'
+                OSversion="10.10"
+                ;;
+            10.11.*)
+                OSname="El Capitan"
+                OSversion="10.11"
+                ;;
+            10.12.*)
+                OSname='High Sierra'
+                OSversion="10.12"
+                ;;
+            10.13.*)
+                OSname='High Sierra'
+                OSversion="10.13"
+                ;;
+            10.14.*)
+                OSname='Mojave'
+                OSversion="10.14"
+                ;;
+            10.15.*)
+                OSname='Catalina'
+                OSversion="10.15"
+                ;;
+            10.14.*)
+                OSname='Mojave'
+                OSversion="10.14"
+                ;;
+            10.15 | 10.15.*)
+                OSname='Catalina'
+                OSversion="10.15"
+                ;;
+            *)
+                error_msg "Your Mac OS version is not supported yet!"
+                exit 105
+        esac
+    fi
+}
+
+# Script checks
+if [ ! -f $HOME/.ssh/id_rsa ]; then
+	warning_msg "By default, you should import your Github account public\private keys prior to runing this script, otherwise make sure your Github account does not use 2FA!"
+	read -p "Press any key to continue..."
+fi
+
 # Brew installation
 if [[ ! `which brew` ]]; then
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 else
 	echo "Brew is already installed."
-fi
-
-# iTerm2 installation
-if [[ ! -d "/Applications/iTerm.app" ]]; then
-    brew cask install iterm2
-else
-	echo "iTerm2 is already installed."
 fi
 
 # Neofetch installation
@@ -43,800 +206,10 @@ chmod u+w /usr/local/lib/pkgconfig
 brew install zsh
 
 # Install Plugins
-if [[ ! -d /Users/$USER/.oh-my-zsh/custom/plugins ]]; then mkdir /Users/$USER/.oh-my-zsh/custom/plugins; fi
+if [[ ! -d $HOME/.oh-my-zsh/custom/plugins ]]; then mkdir $HOME/.oh-my-zsh/custom/plugins; fi
 
-if [[ ! -d /Users/$USER/.oh-my-zsh/custom/plugins/zsh-autosuggestions ]]; then git clone https://github.com/zsh-users/zsh-autosuggestions /Users/$USER/.oh-my-zsh/custom/plugins/zsh-autosuggestions; fi
-if [[ ! -d /Users/$USER/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]]; then git clone https://github.com/zsh-users/zsh-syntax-highlighting.git /Users/$USER/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting; fi
-
-# Original iTerm2 Solarized Dark colors theme - Confirmed
-if [[ ${iTermTheme} == 'Solarized_Dark' ]]; then
-	if [[ ! -f /Users/$USER/Solarized_Dark.itemcolors ]]; then
-cat >> /Users/$USER/Solarized_Dark.itemcolors << EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>Ansi 0 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.19370138645172119</real>
-		<key>Green Component</key>
-		<real>0.15575926005840302</real>
-		<key>Red Component</key>
-		<real>0.0</real>
-	</dict>
-	<key>Ansi 1 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.14145714044570923</real>
-		<key>Green Component</key>
-		<real>0.10840655118227005</real>
-		<key>Red Component</key>
-		<real>0.81926977634429932</real>
-	</dict>
-	<key>Ansi 10 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.38298487663269043</real>
-		<key>Green Component</key>
-		<real>0.35665956139564514</real>
-		<key>Red Component</key>
-		<real>0.27671992778778076</real>
-	</dict>
-	<key>Ansi 11 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.43850564956665039</real>
-		<key>Green Component</key>
-		<real>0.40717673301696777</real>
-		<key>Red Component</key>
-		<real>0.32436618208885193</real>
-	</dict>
-	<key>Ansi 12 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.51685798168182373</real>
-		<key>Green Component</key>
-		<real>0.50962930917739868</real>
-		<key>Red Component</key>
-		<real>0.44058024883270264</real>
-	</dict>
-	<key>Ansi 13 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.72908437252044678</real>
-		<key>Green Component</key>
-		<real>0.33896297216415405</real>
-		<key>Red Component</key>
-		<real>0.34798634052276611</real>
-	</dict>
-	<key>Ansi 14 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.56363654136657715</real>
-		<key>Green Component</key>
-		<real>0.56485837697982788</real>
-		<key>Red Component</key>
-		<real>0.50599193572998047</real>
-	</dict>
-	<key>Ansi 15 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.86405980587005615</real>
-		<key>Green Component</key>
-		<real>0.95794391632080078</real>
-		<key>Red Component</key>
-		<real>0.98943418264389038</real>
-	</dict>
-	<key>Ansi 2 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.020208755508065224</real>
-		<key>Green Component</key>
-		<real>0.54115492105484009</real>
-		<key>Red Component</key>
-		<real>0.44977453351020813</real>
-	</dict>
-	<key>Ansi 3 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.023484811186790466</real>
-		<key>Green Component</key>
-		<real>0.46751424670219421</real>
-		<key>Red Component</key>
-		<real>0.64746475219726562</real>
-	</dict>
-	<key>Ansi 4 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.78231418132781982</real>
-		<key>Green Component</key>
-		<real>0.46265947818756104</real>
-		<key>Red Component</key>
-		<real>0.12754884362220764</real>
-	</dict>
-	<key>Ansi 5 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.43516635894775391</real>
-		<key>Green Component</key>
-		<real>0.10802463442087173</real>
-		<key>Red Component</key>
-		<real>0.77738940715789795</real>
-	</dict>
-	<key>Ansi 6 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.52502274513244629</real>
-		<key>Green Component</key>
-		<real>0.57082360982894897</real>
-		<key>Red Component</key>
-		<real>0.14679534733295441</real>
-	</dict>
-	<key>Ansi 7 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.79781103134155273</real>
-		<key>Green Component</key>
-		<real>0.89001238346099854</real>
-		<key>Red Component</key>
-		<real>0.91611063480377197</real>
-	</dict>
-	<key>Ansi 8 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.15170273184776306</real>
-		<key>Green Component</key>
-		<real>0.11783610284328461</real>
-		<key>Red Component</key>
-		<real>0.0</real>
-	</dict>
-	<key>Ansi 9 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.073530435562133789</real>
-		<key>Green Component</key>
-		<real>0.21325300633907318</real>
-		<key>Red Component</key>
-		<real>0.74176257848739624</real>
-	</dict>
-	<key>Background Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.15170273184776306</real>
-		<key>Green Component</key>
-		<real>0.11783610284328461</real>
-		<key>Red Component</key>
-		<real>0.0</real>
-	</dict>
-	<key>Bold Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.56363654136657715</real>
-		<key>Green Component</key>
-		<real>0.56485837697982788</real>
-		<key>Red Component</key>
-		<real>0.50599193572998047</real>
-	</dict>
-	<key>Cursor Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.51685798168182373</real>
-		<key>Green Component</key>
-		<real>0.50962930917739868</real>
-		<key>Red Component</key>
-		<real>0.44058024883270264</real>
-	</dict>
-	<key>Cursor Text Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.19370138645172119</real>
-		<key>Green Component</key>
-		<real>0.15575926005840302</real>
-		<key>Red Component</key>
-		<real>0.0</real>
-	</dict>
-	<key>Foreground Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.51685798168182373</real>
-		<key>Green Component</key>
-		<real>0.50962930917739868</real>
-		<key>Red Component</key>
-		<real>0.44058024883270264</real>
-	</dict>
-	<key>Selected Text Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.56363654136657715</real>
-		<key>Green Component</key>
-		<real>0.56485837697982788</real>
-		<key>Red Component</key>
-		<real>0.50599193572998047</real>
-	</dict>
-	<key>Selection Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.19370138645172119</real>
-		<key>Green Component</key>
-		<real>0.15575926005840302</real>
-		<key>Red Component</key>
-		<real>0.0</real>
-	</dict>
-</dict>
-</plist>
-EOF
-	fi
-
-elif [[ ${iTermTheme} == 'Solarized_Dark_patched' ]]; then
-# Patched iTerm2 Solarized Dark colors theme - Not in use
-#cat >> ~/Solarized_Dark.itemcolors << EOF
-cat >> /Users/$USER/Solarized_Dark_patched.itemcolors << EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>Ansi 0 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.19370138645172119</real>
-		<key>Green Component</key>
-		<real>0.15575926005840302</real>
-		<key>Red Component</key>
-		<real>0.0</real>
-	</dict>
-	<key>Ansi 1 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.14145714044570923</real>
-		<key>Green Component</key>
-		<real>0.10840655118227005</real>
-		<key>Red Component</key>
-		<real>0.81926977634429932</real>
-	</dict>
-	<key>Ansi 10 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.38298487663269043</real>
-		<key>Green Component</key>
-		<real>0.35665956139564514</real>
-		<key>Red Component</key>
-		<real>0.27671992778778076</real>
-	</dict>
-	<key>Ansi 11 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.43850564956665039</real>
-		<key>Green Component</key>
-		<real>0.40717673301696777</real>
-		<key>Red Component</key>
-		<real>0.32436618208885193</real>
-	</dict>
-	<key>Ansi 12 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.51685798168182373</real>
-		<key>Green Component</key>
-		<real>0.50962930917739868</real>
-		<key>Red Component</key>
-		<real>0.44058024883270264</real>
-	</dict>
-	<key>Ansi 13 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.72908437252044678</real>
-		<key>Green Component</key>
-		<real>0.33896297216415405</real>
-		<key>Red Component</key>
-		<real>0.34798634052276611</real>
-	</dict>
-	<key>Ansi 14 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.56363654136657715</real>
-		<key>Green Component</key>
-		<real>0.56485837697982788</real>
-		<key>Red Component</key>
-		<real>0.50599193572998047</real>
-	</dict>
-	<key>Ansi 15 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.86405980587005615</real>
-		<key>Green Component</key>
-		<real>0.95794391632080078</real>
-		<key>Red Component</key>
-		<real>0.98943418264389038</real>
-	</dict>
-	<key>Ansi 2 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.020208755508065224</real>
-		<key>Green Component</key>
-		<real>0.54115492105484009</real>
-		<key>Red Component</key>
-		<real>0.44977453351020813</real>
-	</dict>
-	<key>Ansi 3 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.023484811186790466</real>
-		<key>Green Component</key>
-		<real>0.46751424670219421</real>
-		<key>Red Component</key>
-		<real>0.64746475219726562</real>
-	</dict>
-	<key>Ansi 4 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.78231418132781982</real>
-		<key>Green Component</key>
-		<real>0.46265947818756104</real>
-		<key>Red Component</key>
-		<real>0.12754884362220764</real>
-	</dict>
-	<key>Ansi 5 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.43516635894775391</real>
-		<key>Green Component</key>
-		<real>0.10802463442087173</real>
-		<key>Red Component</key>
-		<real>0.77738940715789795</real>
-	</dict>
-	<key>Ansi 6 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.52502274513244629</real>
-		<key>Green Component</key>
-		<real>0.57082360982894897</real>
-		<key>Red Component</key>
-		<real>0.14679534733295441</real>
-	</dict>
-	<key>Ansi 7 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.79781103134155273</real>
-		<key>Green Component</key>
-		<real>0.89001238346099854</real>
-		<key>Red Component</key>
-		<real>0.91611063480377197</real>
-	</dict>
-	<key>Ansi 8 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.38298487663269043</real>
-		<key>Green Component</key>
-		<real>0.35665956139564514</real>
-		<key>Red Component</key>
-		<real>0.27671992778778076</real>
-	</dict>
-	<key>Ansi 9 Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.073530435562133789</real>
-		<key>Green Component</key>
-		<real>0.21325300633907318</real>
-		<key>Red Component</key>
-		<real>0.74176257848739624</real>
-	</dict>
-	<key>Background Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.15170273184776306</real>
-		<key>Green Component</key>
-		<real>0.11783610284328461</real>
-		<key>Red Component</key>
-		<real>0.0</real>
-	</dict>
-	<key>Bold Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.56363654136657715</real>
-		<key>Green Component</key>
-		<real>0.56485837697982788</real>
-		<key>Red Component</key>
-		<real>0.50599193572998047</real>
-	</dict>
-	<key>Cursor Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.51685798168182373</real>
-		<key>Green Component</key>
-		<real>0.50962930917739868</real>
-		<key>Red Component</key>
-		<real>0.44058024883270264</real>
-	</dict>
-	<key>Cursor Text Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.19370138645172119</real>
-		<key>Green Component</key>
-		<real>0.15575926005840302</real>
-		<key>Red Component</key>
-		<real>0.0</real>
-	</dict>
-	<key>Foreground Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.51685798168182373</real>
-		<key>Green Component</key>
-		<real>0.50962930917739868</real>
-		<key>Red Component</key>
-		<real>0.44058024883270264</real>
-	</dict>
-	<key>Selected Text Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.56363654136657715</real>
-		<key>Green Component</key>
-		<real>0.56485837697982788</real>
-		<key>Red Component</key>
-		<real>0.50599193572998047</real>
-	</dict>
-	<key>Selection Color</key>
-	<dict>
-		<key>Blue Component</key>
-		<real>0.19370138645172119</real>
-		<key>Green Component</key>
-		<real>0.15575926005840302</real>
-		<key>Red Component</key>
-		<real>0.0</real>
-	</dict>
-</dict>
-</plist>
-EOF
-
-elif [[ ${iTermTheme} == 'Material_Design' ]]; then
-# Material Design Colors iTerm colors - Not in use
-cat >> /Users/$USER/Material_design.itemcolors << EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>Ansi 0 Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.19215686619281769</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.18431372940540314</real>
-		<key>Red Component</key>
-		<real>0.17647059261798859</real>
-	</dict>
-	<key>Ansi 1 Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.31764706969261169</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.31764706969261169</real>
-		<key>Red Component</key>
-		<real>1</real>
-	</dict>
-	<key>Ansi 10 Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.79215681552886963</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.96470588445663452</real>
-		<key>Red Component</key>
-		<real>0.7254902720451355</real>
-	</dict>
-	<key>Ansi 11 Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.49803918600082397</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.89803916215896606</real>
-		<key>Red Component</key>
-		<real>1</real>
-	</dict>
-	<key>Ansi 12 Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.99607843160629272</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.84313726425170898</real>
-		<key>Red Component</key>
-		<real>0.50196081399917603</real>
-	</dict>
-	<key>Ansi 13 Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.67058825492858887</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.50196081399917603</real>
-		<key>Red Component</key>
-		<real>1</real>
-	</dict>
-	<key>Ansi 14 Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.92158126831054688</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.9924500584602356</real>
-		<key>Red Component</key>
-		<real>0.65526837110519409</real>
-	</dict>
-	<key>Ansi 15 Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.99999994039535522</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.99999994039535522</real>
-		<key>Red Component</key>
-		<real>0.9999966025352478</real>
-	</dict>
-	<key>Ansi 2 Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.75294119119644165</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.7450980544090271</real>
-		<key>Red Component</key>
-		<real>0.73725491762161255</real>
-	</dict>
-	<key>Ansi 3 Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.25098034739494324</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.84313732385635376</real>
-		<key>Red Component</key>
-		<real>1</real>
-	</dict>
-	<key>Ansi 4 Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.50196081399917603</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.50196081399917603</real>
-		<key>Red Component</key>
-		<real>0.49803921580314636</real>
-	</dict>
-	<key>Ansi 5 Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.50588232278823853</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.25098031759262085</real>
-		<key>Red Component</key>
-		<real>1</real>
-	</dict>
-	<key>Ansi 6 Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.85492348670959473</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.98838895559310913</real>
-		<key>Red Component</key>
-		<real>0.39322873950004578</real>
-	</dict>
-	<key>Ansi 7 Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.34509804844856262</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.34117648005485535</real>
-		<key>Red Component</key>
-		<real>0.33725491166114807</real>
-	</dict>
-	<key>Ansi 8 Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.77254897356033325</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.7450980544090271</real>
-		<key>Red Component</key>
-		<real>0.69019621610641479</real>
-	</dict>
-	<key>Ansi 9 Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.50196081399917603</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.541176438331604</real>
-		<key>Red Component</key>
-		<real>1</real>
-	</dict>
-	<key>Background Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.13725490868091583</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.12941177189350128</real>
-		<key>Red Component</key>
-		<real>0.12156862765550613</real>
-	</dict>
-	<key>Badge Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>0.5</real>
-		<key>Blue Component</key>
-		<real>0.0</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.1491314172744751</real>
-		<key>Red Component</key>
-		<real>1</real>
-	</dict>
-	<key>Bold Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.92941176891326904</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.93333333730697632</real>
-		<key>Red Component</key>
-		<real>0.92941176891326904</real>
-	</dict>
-	<key>Cursor Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.5215686559677124</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.51372551918029785</real>
-		<key>Red Component</key>
-		<real>0.5058823823928833</real>
-	</dict>
-	<key>Cursor Guide Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>0.25</real>
-		<key>Blue Component</key>
-		<real>1</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.9268307089805603</real>
-		<key>Red Component</key>
-		<real>0.70213186740875244</real>
-	</dict>
-	<key>Cursor Text Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.0</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.0</real>
-		<key>Red Component</key>
-		<real>0.0</real>
-	</dict>
-	<key>Foreground Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.94117647409439087</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.93333333730697632</real>
-		<key>Red Component</key>
-		<real>0.92549020051956177</real>
-	</dict>
-	<key>Link Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.73333334922790527</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.35686275362968445</real>
-		<key>Red Component</key>
-		<real>0.0</real>
-	</dict>
-	<key>Selected Text Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.94117647409439087</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.93333333730697632</real>
-		<key>Red Component</key>
-		<real>0.92549020051956177</real>
-	</dict>
-	<key>Selection Color</key>
-	<dict>
-		<key>Alpha Component</key>
-		<real>1</real>
-		<key>Blue Component</key>
-		<real>0.54509806632995605</real>
-		<key>Color Space</key>
-		<string>sRGB</string>
-		<key>Green Component</key>
-		<real>0.48627451062202454</real>
-		<key>Red Component</key>
-		<real>0.37647059559822083</real>
-	</dict>
-</dict>
-</plist>
-EOF
-fi
-
+if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions ]]; then git clone https://github.com/zsh-users/zsh-autosuggestions $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions; fi
+if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]]; then git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting; fi
 # Powerlevel9k Installation - In use
 if [[ ! -d /usr/local/opt/powerlevel9k ]]; then
 	brew tap sambadevi/powerlevel9k
@@ -844,18 +217,18 @@ if [[ ! -d /usr/local/opt/powerlevel9k ]]; then
 fi
 
 # Zsh Aliases
-if [[ ! -f /Users/$USER/.Aliases ]]; then
-	cp ./Aliases /Users/$USER/.Aliases
+if [[ ! -f $HOME/.Aliases ]]; then
+	cp ./Aliases $HOME/.Aliases
 	#chown $USER:staff ~/.Aliases
 	chmod 0640 ~/.Aliases
 fi
 
 # .Zshrc configuration
-if [[ ! -f /Users/$USER/.zshrc ]]; then
-    touch /Users/$USER/.zshrc
+if [[ ! -f $HOME/.zshrc ]]; then
+    touch $HOME/.zshrc
 fi
 
-cat >> /Users/$USER/.zshrc << EOF
+cat >> $HOME/.zshrc << EOF
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export PATH="\$PATH:\$HOME/.rvm/bin"
 # Load Aliases, if exists
@@ -947,7 +320,7 @@ POWERLEVEL9K_RVM_FOREGROUND="249"
 POWERLEVEL9K_RVM_VISUAL_IDENTIFIER_COLOR="red"
 POWERLEVEL9K_TIME_BACKGROUND="black"
 POWERLEVEL9K_TIME_FOREGROUND="249"
-POWERLEVEL9K_TIME_FORMAT="\UF43A %D{%I:%M  \UF133  %m.%d.%y}"
+POWERLEVEL9K_TIME_FORMAT="\UF43A  %D{%H:%M  \UF133  %m.%d.%y}"
 POWERLEVEL9K_RVM_BACKGROUND="black"
 POWERLEVEL9K_RVM_FOREGROUND="249"
 POWERLEVEL9K_RVM_VISUAL_IDENTIFIER_COLOR="red"
@@ -979,6 +352,11 @@ HIST_STAMPS="mm/dd/yyyy"
 DISABLE_UPDATE_PROMPT=true
 EOF
 
+# Modify PowerLevel9K theme configuration file
+if [[ `which gsed 2> /dev/null` ]]; then
+	gsed -i -e "/\"TIME_ICON\"$/ s/^#*/# Modified by Yehonatan Devorkin\n/" -e "s/ \"TIME_ICON\"//" /usr/local/opt/powerlevel9k/powerlevel9k.zsh-theme | grep -A5 '# System time'
+fi
+
 # Change current user default loginShell to Zsh
-sudo dscl . -create /Users/$USER UserShell /usr/local/bin/zsh
+sudo dscl . -create $HOME UserShell /usr/local/bin/zsh
 exit 0
