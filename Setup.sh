@@ -274,7 +274,7 @@ prompt_zsh_battery_level() {
         local charging="true";
     fi
 
-    if [ $(pmset -g ps | wc -l ) == 2 ]; then
+    if [ $(pmset -g ps | wc -l) == 2 ]; then
         if [ \$percentage -le 20 ]
             then symbol='\uf579' ; color='%F{red}' ;
             #10%
