@@ -185,49 +185,49 @@ fi
 
 # Brew installation
 if [[ ! `which brew` ]]; then
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    echodo /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 fi
 
 # Neofetch installation
-brew install neofetch
+echodo brew install neofetch
 
 # Nerd fonts installation
-brew tap homebrew/cask-fonts
-brew cask install font-hack-nerd-font
-sudo chown -R $(whoami) /usr/local/lib/pkgconfig
-chmod u+w /usr/local/lib/pkgconfig
+echodo brew tap homebrew/cask-fonts
+echodo brew cask install font-hack-nerd-font
+echodo sudo chown -R $(whoami) /usr/local/lib/pkgconfig
+echodo chmod u+w /usr/local/lib/pkgconfig
 
 # Oh-My-Zsh installation
 #bash "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 
 # Zsh installation
-brew install zsh
+echodo brew install zsh
 
 # Install Plugins
-if [[ ! -d $HOME/.oh-my-zsh/custom/plugins ]]; then mkdir $HOME/.oh-my-zsh/custom/plugins; fi
+if [[ ! -d $HOME/.oh-my-zsh/custom/plugins ]]; then echodo  mkdir $HOME/.oh-my-zsh/custom/plugins; fi
 
-if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions ]]; then git clone git@github.com:zsh-users/zsh-autosuggestions $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions; fi
-if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]]; then git clone git@github.com:zsh-users/zsh-syntax-highlighting.git $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting; fi
+if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions ]]; then echodo git clone git@github.com:zsh-users/zsh-autosuggestions $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions; fi
+if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]]; then echodo git clone git@github.com:zsh-users/zsh-syntax-highlighting.git $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting; fi
 ### Enabling Git clone via SSH instead of HTTPS
 #if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions ]]; then git clone https://github.com/zsh-users/zsh-autosuggestions $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions; fi
 #if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]]; then git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting; fi
 
 # Powerlevel9k Installation - In use
 if [[ ! -d /usr/local/opt/powerlevel9k ]]; then
-	brew tap sambadevi/powerlevel9k
-	brew install powerlevel9k
+	echodo brew tap sambadevi/powerlevel9k
+	echodo brew install powerlevel9k
 fi
 
 # Zsh Aliases
 if [[ ! -f $HOME/.Aliases ]]; then
-	cp ./Aliases $HOME/.Aliases
+	echodo cp ./Aliases $HOME/.Aliases
 	#chown $USER:staff ~/.Aliases
-	chmod 0640 ~/.Aliases
+	echodo chmod 0640 ~/.Aliases
 fi
 
 # .Zshrc configuration
 if [[ ! -f $HOME/.zshrc ]]; then
-    touch $HOME/.zshrc
+    echodo touch $HOME/.zshrc
 fi
 
 cat >> $HOME/.zshrc << EOF
@@ -356,9 +356,9 @@ EOF
 
 # Modify PowerLevel9K theme configuration file
 if [[ `which gsed 2> /dev/null` ]]; then
-	gsed -i -e "/\"TIME_ICON\"$/ s/^#*/# Modified by Yehonatan Devorkin\n/" -e "s/ \"TIME_ICON\"//" /usr/local/opt/powerlevel9k/powerlevel9k.zsh-theme | grep -A5 '# System time'
+	echodo gsed -i -e "/\"TIME_ICON\"$/ s/^#*/# Modified by Yehonatan Devorkin\n/" -e "s/ \"TIME_ICON\"//" /usr/local/opt/powerlevel9k/powerlevel9k.zsh-theme | grep -A5 '# System time'
 fi
 
 # Change current user default loginShell to Zsh
-sudo dscl . -create $HOME UserShell /usr/local/bin/zsh
+echodo sudo dscl . -create $HOME UserShell /usr/local/bin/zsh
 exit 0
