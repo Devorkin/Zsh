@@ -186,8 +186,6 @@ fi
 # Brew installation
 if [[ ! `which brew` ]]; then
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-else
-	echo "Brew is already installed."
 fi
 
 # Neofetch installation
@@ -208,8 +206,12 @@ brew install zsh
 # Install Plugins
 if [[ ! -d $HOME/.oh-my-zsh/custom/plugins ]]; then mkdir $HOME/.oh-my-zsh/custom/plugins; fi
 
-if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions ]]; then git clone https://github.com/zsh-users/zsh-autosuggestions $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions; fi
-if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]]; then git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting; fi
+if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions ]]; then git clone git@github.com:zsh-users/zsh-autosuggestions $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions; fi
+if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]]; then git clone git@github.com:zsh-users/zsh-syntax-highlighting.git $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting; fi
+### Enabling Git clone via SSH instead of HTTPS
+#if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions ]]; then git clone https://github.com/zsh-users/zsh-autosuggestions $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions; fi
+#if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]]; then git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting; fi
+
 # Powerlevel9k Installation - In use
 if [[ ! -d /usr/local/opt/powerlevel9k ]]; then
 	brew tap sambadevi/powerlevel9k
