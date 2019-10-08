@@ -239,6 +239,9 @@ fi
 # .Zshrc configuration
 if [[ ! -f $HOME/.zshrc ]]; then
     echodo touch $HOME/.zshrc
+else
+    echodo rm -f $HOME/.zshrc
+    echodo touch $HOME/.zshrc
 fi
 
 cat >> $HOME/.zshrc << EOF
@@ -267,6 +270,12 @@ prompt_zsh_battery_level() {
     local percentage=\`echo "\${percentage1//\%}"\`
     local color='%F{red}'
     local symbol="\uf00d"
+    if [ \$(pmset -g ps > /dev/null 2>&1 | wc -l) != 2 ]; then
+        local charging="false";
+        local symbol="\u26A1"
+        echo -n "%{\$color%}\$symbol" ;
+        break
+    fi
     pmset -g ps | grep "discharging" > /dev/null
     if [ \$? -eq 0 ]; then
         local charging="false";
@@ -274,38 +283,36 @@ prompt_zsh_battery_level() {
         local charging="true";
     fi
 
-    if [ $(pmset -g ps | wc -l) == 2 ]; then
-        if [ \$percentage -le 20 ]
-            then symbol='\uf579' ; color='%F{red}' ;
-            #10%
-        elif [ \$percentage -gt 19 ] && [ \$percentage -le 30 ]
-            then symbol="\uf57a" ; color='%F{red}' ;
-            #20%
-        elif [ \$percentage -gt 29 ] && [ \$percentage -le 40 ]
-            then symbol="\uf57b" ; color='%F{yellow}' ;
-            #35%
-        elif [ \$percentage -gt 39 ] && [ \$percentage -le 50 ]
-            then symbol="\uf57c" ; color='%F{yellow}' ;
-            #45%
-        elif [ \$percentage -gt 49 ] && [ \$percentage -le 60 ]
-            then symbol="\uf57d" ; color='%F{blue}' ;
-            #55%
-        elif [ \$percentage -gt 59 ] && [ \$percentage -le 70 ]
-            then symbol="\uf57e" ; color='%F{blue}' ;
-            #65%
-        elif [ \$percentage -gt 69 ] && [ \$percentage -le 80 ]
-            then symbol="\uf57f" ; color='%F{blue}' ;
-            #75%
-        elif [ \$percentage -gt 79 ] && [ \$percentage -le 90 ]
-            then symbol="\uf580" ; color='%F{blue}' ;
-            #85%
-        elif [ \$percentage -gt 89 ] && [ \$percentage -le 99 ]
-            then symbol="\uf581" ; color='%F{blue}' ;
-            #85%
-        elif [ \$percentage -gt 98 ]
-            then symbol="\uf578" ; color='%F{green}' ;
-            #100%
-        fi
+    if [ \$percentage -le 20 ]
+        then symbol='\uf579' ; color='%F{red}' ;
+        #10%
+    elif [ \$percentage -gt 19 ] && [ \$percentage -le 30 ]
+        then symbol="\uf57a" ; color='%F{red}' ;
+        #20%
+    elif [ \$percentage -gt 29 ] && [ \$percentage -le 40 ]
+        then symbol="\uf57b" ; color='%F{yellow}' ;
+        #35%
+    elif [ \$percentage -gt 39 ] && [ \$percentage -le 50 ]
+        then symbol="\uf57c" ; color='%F{yellow}' ;
+        #45%
+    elif [ \$percentage -gt 49 ] && [ \$percentage -le 60 ]
+        then symbol="\uf57d" ; color='%F{blue}' ;
+        #55%
+    elif [ \$percentage -gt 59 ] && [ \$percentage -le 70 ]
+        then symbol="\uf57e" ; color='%F{blue}' ;
+        #65%
+    elif [ \$percentage -gt 69 ] && [ \$percentage -le 80 ]
+        then symbol="\uf57f" ; color='%F{blue}' ;
+        #75%
+    elif [ \$percentage -gt 79 ] && [ \$percentage -le 90 ]
+        then symbol="\uf580" ; color='%F{blue}' ;
+        #85%
+    elif [ \$percentage -gt 89 ] && [ \$percentage -le 99 ]
+        then symbol="\uf581" ; color='%F{blue}' ;
+        #85%
+    elif [ \$percentage -gt 98 ]
+        then symbol="\uf578" ; color='%F{green}' ;
+        #100%
     fi
 
     if [ \$charging = "true" ];
