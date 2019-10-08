@@ -177,6 +177,17 @@ function OS_version {
     fi
 }
 
+# Confirms that this script running using local user account
+if [ $EUID == 0 ]; then
+	error_msg "### This script must run WITHOUT Root privileges!"
+	exit 101
+fi
+
+# Making sure this script will use Sudo permissions - when needed - without prompting for credentials more than once
+sudo -v
+# Keep-alive: update existing `sudo` time stamp until `$0` has finished
+while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+
 # Script checks
 if [ ! -f $HOME/.ssh/id_rsa ]; then
 	warning_msg "By default, you should import your Github account public\private keys prior to runing this script, otherwise make sure your Github account does not use 2FA!"
