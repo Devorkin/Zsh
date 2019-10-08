@@ -208,20 +208,13 @@ echodo brew cask install font-hack-nerd-font
 echodo sudo chown -R $(whoami) /usr/local/lib/pkgconfig
 echodo chmod u+w /usr/local/lib/pkgconfig
 
-# Oh-My-Zsh installation
-#bash "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-
 # Zsh installation
 echodo brew install zsh
 
 # Install Plugins
 if [[ ! -d $HOME/.oh-my-zsh/custom/plugins ]]; then echodo  mkdir $HOME/.oh-my-zsh/custom/plugins; fi
-
 if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions ]]; then echodo git clone git@github.com:zsh-users/zsh-autosuggestions $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions; fi
 if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]]; then echodo git clone git@github.com:zsh-users/zsh-syntax-highlighting.git $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting; fi
-### Enabling Git clone via SSH instead of HTTPS
-#if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions ]]; then git clone https://github.com/zsh-users/zsh-autosuggestions $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions; fi
-#if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]]; then git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting; fi
 
 # Powerlevel9k Installation - In use
 if [[ ! -d /usr/local/opt/powerlevel9k ]]; then
@@ -232,7 +225,6 @@ fi
 # Zsh Aliases
 if [[ ! -f $HOME/.Aliases ]]; then
 	echodo cp ./Aliases $HOME/.Aliases
-	#chown $USER:staff ~/.Aliases
 	echodo chmod 0640 ~/.Aliases
 fi
 
