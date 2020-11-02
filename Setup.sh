@@ -1,15 +1,14 @@
 #! /bin/bash
 
 ### Left overs
-# Set iTerm2 with Solarized colors theme via CLI
-## Preferences --> Profiles --> {profile} --> Colors --> Colors presets --> Import\select
-# Set iTerm2 with 
-## Preferences --> Profiles --> {profile} --> Text --> [Font] Change font --> 13pt. Hack Regular Nerd Font Complete
-## Preferences --> Profiles --> {profile} --> Text --> [Non-ASCII font] Change font --> 13pt. Hack Regular Nerd Font Complete
 # Wifi signal, laptop battery metters.
 ## sudo ln -s /System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport /usr/local/bin/airport
-# [Source]: https://medium.com/@rafavinnce/iterm2-zsh-oh-my-zsh-material-design-the-most-power-full-terminal-on-macos-332b1ee364a5
 ###
+
+### Credits to:
+# [Source]: https://medium.com/@rafavinnce/iterm2-zsh-oh-my-zsh-material-design-the-most-power-full-terminal-on-macos-332b1ee364a5
+## avillafiorita/.colors.csv    -   https://gist.github.com/avillafiorita/9e626ce370e1da6c6373#file-set_colors-bash
+## kevinSuttle/macOS-Defaults   -   https://github.com/kevinSuttle/macOS-Defaults/blob/master/.macos
 
 # Script variables
 set -o nounset
@@ -18,6 +17,9 @@ Args=("$@")
 OSname=''
 OStype=''
 OSversion=''
+ShellFont='Hack Nerd Font'
+ShellFontSize='13'
+TerminalTheme='Solarized_Dark_xterm-256color'       # The Terminal theme should be located on ~/.config/Terminal/
 
 # Output templates:
 description_msg() {
@@ -43,204 +45,165 @@ function echodo {
 	"$@"
 }
 
-function OS_type {
-	# Recognize OS type:
-	if [[ -f /etc/redhat-release ]]; then
-        OStype="CentOS"
-	elif [[ -f /usr/bin/lsb_release ]]; then
-        OStype="Ubuntu"
-	elif [[ -f /usr/bin/sw_vers ]]; then
-		OStype="OSX"
-	else
-		error_msg "This script supports CentOS \ RHEL, OSX or Ubuntu OS ditributions!"
-		exit 102
-	fi
-}
 
-function OS_version {
-    if [[ ${OStype} == "CentOS" ]]; then
-        if [[ `cat /etc/redhat-release` == "CentOS Linux release 7."* ]]; then
-			OSversion=7
-		elif [[ `cat /etc/redhat-release` == "CentOS release 6."* ]]; then
-			OSversion=6
-        else
-            error_msg "Your CentOS version is not supported yet!"
-            exit 103
-		fi
-    elif [[ ${OStype} == "Ubuntu" ]]; then
-        OSval=`/usr/bin/lsb_release -rs`
-        case ${OSval} in
-        14.04)
-            OSname='Trusty Tahr'
-            OSversion="14.04"
-            ;;
-        14.10)
-            OSname='Utopic Unicorn'
-            OSversion="14.10"
-            ;;
-        15.04)
-            OSname='Vivid Vervet'
-            OSversion="15.04"
-            ;;
-        15.10)
-            OSname='Wily Werewolf'
-            OSversion="15.10"
-            ;;
-        16.04)
-            OSname='Xenial Xerus'
-            OSversion="16.04"
-            ;;
-        16.10)
-            OSname='Yakkety Yak'
-            OSversion="16.10"
-            ;;
-        17.04)
-            OSname='Zesty Zapus'
-            OSversion="17.04"
-            ;;
-        17.10)
-            OSname='Artful Aardvark'
-            OSversion="17.10"
-            ;;
-        18.04)
-            OSname='Bionic Beaver'
-            OSversion="18.04"
-            ;;
-        18.10)
-            OSname='Cosmic Cuttlefish'
-            OSversion="18.10"
-            ;;
-        19.04)
-            OSname='Disco Dingo'
-            OSversion="19.04"
-            ;;
-        *)
-            error_msg "Your Ubuntu version is not supported yet!"
-            exit 104
-            ;;
-       esac
-    elif [[ ${OStype} == "OSX" ]]; then
-		OSval=`sw_vers -productVersion`
-		case ${OSval} in
-            10.6.*)
-                OSname='Snow Leopard'
-                OSversion="10.6"
-                ;;
-            10.7.*)
-                OSname='Lion'
-                OSversion="10.7"
-                ;;
-            10.8.*)
-                OSname='Mountain Lion'
-                OSversion="10.8"
-                ;;
-            10.9.*)
-                OSname='Mavericks'
-                OSversion="10.9"
-                ;;
-            10.10.*)
-                OSname='Yosemite'
-                OSversion="10.10"
-                ;;
-            10.11.*)
-                OSname="El Capitan"
-                OSversion="10.11"
-                ;;
-            10.12.*)
-                OSname='High Sierra'
-                OSversion="10.12"
-                ;;
-            10.13.*)
-                OSname='High Sierra'
-                OSversion="10.13"
-                ;;
-            10.14.*)
-                OSname='Mojave'
-                OSversion="10.14"
-                ;;
-            10.15.*)
-                OSname='Catalina'
-                OSversion="10.15"
-                ;;
-            10.14.*)
-                OSname='Mojave'
-                OSversion="10.14"
-                ;;
-            10.15 | 10.15.*)
-                OSname='Catalina'
-                OSversion="10.15"
-                ;;
-            *)
-                error_msg "Your Mac OS version is not supported yet!"
-                exit 105
-        esac
+function Brew {
+    # Nerd fonts installation
+    echodo brew tap homebrew/cask-fonts
+    echodo brew cask install font-hack-nerd-font
+    echodo sudo chown -R $(whoami) /usr/local/lib/pkgconfig
+    echodo chmod u+w /usr/local/lib/pkgconfig
+    
+    # Install GNU Sed
+    if [[ ! `which gsed` ]]; then
+        echodo brew install gsed
+    fi
+
+    # Neofetch installation
+    if [[ ! `which neofetch` ]]; then
+        echodo brew install neofetch
+    fi
+
+    # Powerlevel9k Installation
+    if [[ ! -d /usr/local/opt/powerlevel9k ]]; then
+        echodo brew tap sambadevi/powerlevel9k
+        echodo brew install powerlevel9k
+    fi
+
+    # Zsh installation
+    if [[ ! -L /usr/local/bin/zsh ]]; then
+        echodo brew install zsh
+    else
+        echodo brew upgrade zsh
     fi
 }
 
-# Confirms that this script running using local user account
-if [ $EUID == 0 ]; then
-	error_msg "### This script must run WITHOUT Root privileges!"
-	exit 101
-fi
 
-# Making sure this script will use Sudo permissions - when needed - without prompting for credentials more than once
-sudo -v
-# Keep-alive: update existing `sudo` time stamp until `$0` has finished
-while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+function Setup_Plugins {
+    # Install Plugins
+    if [[ ! -d $HOME/.oh-my-zsh/custom/plugins ]]; then echodo  mkdir -p $HOME/.oh-my-zsh/custom/plugins; fi
+    if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions ]]; then echodo git clone https://github.com/zsh-users/zsh-autosuggestions.git $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions; fi
+    if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]]; then echodo git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting; fi
+}
 
-# Script checks
-if [ ! -f $HOME/.ssh/id_rsa ]; then
-	warning_msg "By default, you should import your Github account public\private keys prior to runing this script, otherwise make sure your Github account does not use 2FA!"
-	read -p "Press any key to continue..."
-fi
 
-# Brew installation
-if [[ ! `which brew` ]]; then
-    echodo /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-fi
+function Senity_Checks {
+    # Confirms that this script running using local user account
+    if [ $EUID == 0 ]; then
+        error_msg "### This script must run WITHOUT Root privileges!"
+        exit 101
+    fi
 
-# Neofetch installation
-echodo brew install neofetch
+    # Checking Internet access
+    if [[ ! `ping -c1 8.8.8.8` ]]; then
+        error_msg "Failed to reach Google DNS over IP, access to the internet is a MUST for this script to work!"
+        exit 106
+    elif [[ ! `ping -c1 www.google.com` ]]; then
+        error_msg "Failed to reach Google webserver using its DNS record, access to the internet is a MUST for this script to work!"
+        exit 107
+    fi
 
-# Nerd fonts installation
-echodo brew tap homebrew/cask-fonts
-echodo brew cask install font-hack-nerd-font
-echodo sudo chown -R $(whoami) /usr/local/lib/pkgconfig
-echodo chmod u+w /usr/local/lib/pkgconfig
+    # Checks for Brew installation
+    if [[ ! `which brew` ]]; then
+        warning_msg "Brew was not detected - will try to install it now..."
+        yes '' | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+    else
+        output_msg "Brew has been detected, will make sure it is working well and updated..."
+        echodo brew doctor
+        echodo brew analytics off
+    fi
 
-# Zsh installation
-echodo brew install zsh
+    # Checks for Git binary
+    if [[ ! `which git` ]]; then
+        echodo brew install git
+    fi
+}
 
-# Install Plugins
-if [[ ! -d $HOME/.oh-my-zsh/custom/plugins ]]; then echodo  mkdir $HOME/.oh-my-zsh/custom/plugins; fi
-if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions ]]; then echodo git clone git@github.com:zsh-users/zsh-autosuggestions $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions; fi
-if [[ ! -d $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]]; then echodo git clone git@github.com:zsh-users/zsh-syntax-highlighting.git $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting; fi
 
-# Powerlevel9k Installation - In use
-if [[ ! -d /usr/local/opt/powerlevel9k ]]; then
-	echodo brew tap sambadevi/powerlevel9k
-	echodo brew install powerlevel9k
-fi
+function Setup_Terminal {
+# Terminal confgiuration
+# Use a modified version of the Solarized Dark theme by default in Terminal.app
+# Font and font size are values of $ShellFont & $ShellFontSize are set in the top of this script
+osascript << EOB
+tell application "Terminal"
+	local allOpenedWindows
+	local initialOpenedWindows
+	local windowID
+	set themeName to "${TerminalTheme}"
+	(* Store the IDs of all the open terminal windows. *)
+    set initialOpenedWindows to id of every window
+	(* Open the custom theme so that it gets added to the list
+	   of available terminal themes (note: this will open two
+	   additional terminal windows). *)
+	do shell script "open '$HOME/.config/Terminal/" & themeName & ".terminal'"
+	(* Wait a little bit to ensure that the custom theme is added. *)
+	delay 1
+	(* Set the custom theme as the default terminal theme. *)
+	set default settings to settings set themeName
+	(* Get the IDs of all the currently opened terminal windows. *)
+	set allOpenedWindows to id of every window
+	repeat with windowID in allOpenedWindows
+		(* Close the additional windows that were opened in order
+		   to add the custom theme to the list of terminal themes. *)
+		if initialOpenedWindows does not contain windowID then
+			close (every window whose id is windowID)
+		(* Change the theme for the initial opened terminal windows
+		   to remove the need to close them in order for the custom
+		   theme to be applied. *)
+		else
+			set current settings of tabs of (every window whose id is windowID) to settings set themeName
+		end if
+	end repeat
+end tell
+EOB
+    
+    # Apply Terminal font & size on current Terminal session as well
+    osascript -e "tell application \"Terminal\" to set the font name of every window to \"${ShellFont}\""
+    osascript -e "tell application \"Terminal\" to set the font size of every window to \"${ShellFontSize}\""
+}
 
-# Zsh Aliases
-if [[ ! -f $HOME/.Aliases ]]; then
-	echodo cp ./Aliases $HOME/.Aliases
-	echodo chmod 0640 ~/.Aliases
-fi
+    
+function SysPrep {
+    # Making sure this script will use Sudo permissions - when needed - without prompting for credentials more than once
+    sudo -v
+    # Keep-alive: update existing `sudo` time stamp until `$0` has finished
+    while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+}
 
-# .Zshrc configuration
-if [[ ! -f $HOME/.zshrc ]]; then
-    echodo touch $HOME/.zshrc
-else
-    echodo rm -f $HOME/.zshrc
-    echodo touch $HOME/.zshrc
-fi
+
+function SystemPreperation {
+    # Zsh Aliases
+    if [[ ! -f $HOME/.Aliases ]]; then
+        echodo cp Aliases $HOME/.Aliases
+        echodo chmod 0640 ~/.Aliases
+    fi
+
+    # Terminal Font
+    if [[ ! -f $HOME/.Terminal ]]; then
+        echodo cp Terminal $HOME/.Terminal
+        echodo chmod 0640 ~/.Terminal
+        gsed -i "s/--ShellFont--/${ShellFont}/" ~/.Terminal
+        gsed -i "s/--ShellFontSize--/${ShellFontSize}/" ~/.Terminal
+    fi
+
+    # .Zshrc configuration
+    if [[ ! -f $HOME/.zshrc ]]; then
+        echodo touch $HOME/.zshrc
+    else
+        echodo rm -f $HOME/.zshrc
+        echodo touch $HOME/.zshrc
+    fi
+
+    # Terminal Solarized theme
+    if [[ ! -d $HOME/.config/Terminal ]]; then
+        echodo mkdir -p $HOME/.config/Terminal
+        echodo cp ${TerminalTheme}.terminal $HOME/.config/Terminal/
+    fi
+
 
 cat >> $HOME/.zshrc << EOF
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="\$PATH:\$HOME/.rvm/bin"
 # Load Aliases, if exists
 [[ -e ~/.Aliases ]] && emulate sh -c 'source ~/.Aliases'
+[[ -e ~/.Terminal ]] && emulate sh -c 'source ~/.Terminal'
 
 # History configuration
 HISTFILE=~/.zsh_history
@@ -366,11 +329,18 @@ HIST_STAMPS="mm/dd/yyyy"
 DISABLE_UPDATE_PROMPT=true
 EOF
 
-# Modify PowerLevel9K theme configuration file
-if [[ `which gsed 2> /dev/null` ]]; then
-	echodo gsed -i -e "/\"TIME_ICON\"$/ s/^#*/# Modified by Yehonatan Devorkin\n/" -e "s/ \"TIME_ICON\"//" /usr/local/opt/powerlevel9k/powerlevel9k.zsh-theme | grep -A5 '# System time'
-fi
+    # Modify PowerLevel9K theme configuration file
+    if [[ `which gsed 2> /dev/null` ]]; then
+        echodo gsed -i -e "/\"TIME_ICON\"$/ s/^#*/# Modified by Yehonatan Devorkin\n/" -e "s/ \"TIME_ICON\"//" /usr/local/opt/powerlevel9k/powerlevel9k.zsh-theme | grep -A5 '# System time'
+    fi
 
-# Change current user default loginShell to Zsh
-echodo sudo dscl . -create $HOME UserShell /usr/local/bin/zsh
-exit 0
+    # Change current user default loginShell to Zsh
+    echodo sudo dscl . -create $HOME UserShell /usr/local/bin/zsh
+}
+
+SysPrep
+Senity_Checks
+Brew
+Setup_Plugins
+SystemPreperation
+Setup_Terminal
