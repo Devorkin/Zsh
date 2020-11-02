@@ -211,6 +211,17 @@ HISTSIZE=100000
 SAVEHIST=100000
 setopt appendhistory
 
+# Set Keyboard binding with iTerm2
+bindkey "[D" backward-word
+bindkey "[C" forward-word
+bindkey "^[a" beginning-of-line
+bindkey "^[e" end-of-line
+
+### The lines commented-out below maight be useful if the above ones will fail!
+#bindkey "\e\e[D" backward-word
+#bindkey "\e\e[C" forward-word
+###
+
 # Additional plugins
 source ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
