@@ -49,7 +49,7 @@ function echodo {
 function Brew {
     # Nerd fonts installation
     echodo brew tap homebrew/cask-fonts
-    echodo brew cask install font-hack-nerd-font
+    echodo brew install --cask font-hack-nerd-font
     echodo sudo chown -R $(whoami) /usr/local/lib/pkgconfig
     echodo chmod u+w /usr/local/lib/pkgconfig
     
