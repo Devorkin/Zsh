@@ -1,4 +1,5 @@
 # My ZSH Github repo
+I'm using this repo to install my MacOS environment quickly - confirmed on Mac OS Monterey
 
 * This Github repository will configure:
     * OS Terminal theme (colors-preset)
